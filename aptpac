@@ -21,6 +21,8 @@ HELPERS=(
     "yay"
     "yaourt"
     "aurman"
+    "pikaur"
+    "pacaur"
 )
 
 DEFAULT_PACMAN_COMMAND="pacman"
