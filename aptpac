@@ -104,6 +104,8 @@ cat << EOF
 aptpac ${APTPAC_VERSION} - A pacman wrapper with syntax based on debian's apt
 (c) 2019-2020 Fascode Network. Yamada Hayao
 EOF
+echo
+pacman --version
 }
 
 
