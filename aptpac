@@ -13,7 +13,7 @@
 # (c) 2019-2020 Fascode Network.
 # maintained by Yamada Hayao
 
-APTPAC_VERSION="2.2.0"
+APTPAC_VERSION="3.0.0"
 
 set -e
 
