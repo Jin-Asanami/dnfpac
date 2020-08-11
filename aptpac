@@ -175,7 +175,7 @@ EOF
         ;;
 esac
 
-if [[ ! "${pacman}" = "pacman" ]]; then
+if [[ ! "${pacman}" = "pacman" ]] && [[ ! "${pacman}" = "sudo pacman" ]]; then
     echo "Use AUR helper ${pacman}."
 fi
 
