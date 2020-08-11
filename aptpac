@@ -18,13 +18,13 @@ APTPAC_VERSION="2.2.0"
 set -e
 
 OPTIONS=
-AURHELP=
+AURHELPER="/usr/bin/hoge"
 HELPERS=(
-    "yay"
-    "yaourt"
-    "aurman"
-    "pikaur"
-    "pacaur"
+    "/usr/bin/yay"
+    "/usr/bin/yaourt"
+    "/usr/bin/aurman"
+    "/usr/bin/pikaur"
+    "/usr/bin/pacaur"
 )
 
 DEFAULT_PACMAN_COMMAND="pacman"
@@ -33,11 +33,24 @@ debug=false
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 
 
+_msg_error () {
+    echo -e "${@}" >&2
+}
+
+_msg_debug () {
+    if ${debug}; then
+        echo -e "${@}" >&1
+    fi
+}
+
 if [[ ! "${UID}" = 0 ]]; then
-    if [[ -z "${AURHELP}" ]]; then
-        for AURHELP in ${HELPERS[@]}; do
-            if [[ -f $(which ${AURHELP} 2> /dev/null) ]]; then
-                PACMAN_COMMAND="$(which ${AURHELP})"
+    if [[ -z "${AURHELPER}" ]]; then
+        for AURHELPER in ${HELPERS[@]}; do
+            if [[ -f "${AURHELPER}" ]]; then
+                PACMAN_COMMAND="${AURHELPER}"
+                break
+            elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
+                PACMAN_COMMAND="$(basename "${AURHELPER}")"
                 break
             fi
         done
@@ -45,10 +58,12 @@ if [[ ! "${UID}" = 0 ]]; then
             PACMAN_COMMAND="sudo ${DEFAULT_PACMAN_COMMAND}"
         fi
     else
-        if [[ -f $(which ${AURHELP} 2> /dev/null) ]]; then
-            PACMAN_COMMAND=${AURHELP}
+        if [[ -f "${AURHELPER}" ]]; then
+            PACMAN_COMMAND="${AURHELPER}"
+        elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
+            PACMAN_COMMAND="$(basename "${AURHELPER}")"
         else
-            echo "${AURHELP} is not installed." >&2
+            _msg_error "${AURHELPER} is not installed."
             exit 1
         fi
     fi
@@ -91,15 +106,6 @@ aptpac ${APTPAC_VERSION} - A pacman wrapper with syntax based on debian's apt
 EOF
 }
 
-_msg_error () {
-    echo -e "${@}" >&2
-}
-
-_msg_debug () {
-    if ${debug}; then
-        echo -e "${@}" >&1
-    fi
-}
 
 ADD_OPTION () {
     OPTIONS="${OPTIONS} ${@}"
