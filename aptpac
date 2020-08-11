@@ -23,31 +23,31 @@ HELPERS=(
     "aurman"
 )
 
+DEFAULT_PACMAN_COMMAND="pacman"
+
 debug=false
-pacman="pacman"
+PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 
 
 if [[ ! "${UID}" = 0 ]]; then
-    if [[ -z ${AURHELP} ]]; then
+    if [[ -z "${AURHELP}" ]]; then
         for AURHELP in ${HELPERS[@]}; do
             if [[ -f $(which ${AURHELP} 2> /dev/null) ]]; then
-                pacman=$(which ${AURHELP})
+                PACMAN_COMMAND="$(which ${AURHELP})"
                 break
             fi
         done
+        if [[ "${PACMAN_COMMAND}" == "${DEFAULT_PACMAN_COMMAND}" ]]; then
+            PACMAN_COMMAND="sudo ${DEFAULT_PACMAN_COMMAND}"
+        fi
     else
         if [[ -f $(which ${AURHELP} 2> /dev/null) ]]; then
-            pacman=${AURHELP}
+            PACMAN_COMMAND=${AURHELP}
         else
             echo "${AURHELP} is not installed." >&2
             exit 1
         fi
     fi
-fi
-
-
-if [[ ! "${UID}" = 0 ]]; then
-    pacman="sudo pacman"
 fi
 
 
@@ -157,9 +157,9 @@ EOF
     clean)
         ADD_OPTION "-Sccc"
         ;;
-    autoremove) if [[ -n $(${pacman} -Qttdq) ]]; then
+    autoremove) if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
                     ADD_OPTION "=Rsc"
-                    PACKAGE="$(${pacman} -Qttdq)"
+                    PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
                 else
                     echo "No packages to remove."
                     exit 0
@@ -178,9 +178,9 @@ EOF
         ;;
 esac
 
-if [[ ! "${pacman}" = "pacman" ]] && [[ ! "${pacman}" = "sudo pacman" ]]; then
-    echo "Use AUR helper ${pacman}."
+if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pacman" ]]; then
+    echo "Use AUR helper ${PACMAN_COMMAND}."
 fi
 
-# echo "${pacman} ${OPTIONS} ${PACKAGE}"
-${pacman} ${OPTIONS} ${PACKAGE}
+# echo "${PACMAN_COMMAND} ${OPTIONS} ${PACKAGE}"
+${PACMAN_COMMAND} ${OPTIONS} ${PACKAGE}
