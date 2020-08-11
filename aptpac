@@ -91,7 +91,7 @@ _usage () {
     echo "    -d | --download-only          Only download the package."
     echo "    -c <file>                     Config file for pacman."
     echo "    -h | --help                   Display this help."
-    echo "    -v | --version                Displays the version of pacman."
+    echo "    -v | --version                Displays the version of aptpac and pacman."
     echo "    --purge                       Delete the entire configuration file."
 }
 
