@@ -153,11 +153,12 @@ EOF
         ADD_OPTION "-Sccc"
         ;;
     autoremove) if [[ -n $(${pacman} -Qttdq) ]]; then
-                    pacman -Qttdq | pacman -Rsnc -
+                    ADD_OPTION "=Rsc"
+                    PACKAGE="$(${pacman} -Qttdq)"
                 else
                     echo "No packages to remove."
+                    exit 0
                 fi
-                exit 0
                 ;;
     list)
         if ${installed}; then
