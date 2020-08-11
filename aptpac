@@ -108,32 +108,71 @@ EOF
 
 
 ADD_OPTION () {
-    OPTIONS="${OPTIONS} ${@}"
+    PACMAN_OPTIONS="${PACMAN_OPTIONS} ${@}"
 }
 
-while getopts 'ydf-:c:hv' arg; do
-    case "${arg}" in
-        y) ADD_OPTION "--noconfirm" ;;
-        d) ADD_OPTION "-w" ;;
-        f) : ;;
-        c) ADD_OPTION "--config ${OPTARG}" ;;
-        h) _usage; _exit 0 ;;
-        v) _version; _exit 0 ;;
-        -)
-            case "${OPTARG}" in
-                download-only) ADD_OPTION "-w" ;;
-                fix-broken) :;;
-                yes) ADD_OPTION "--noconfirm" ;;
-                assume-yes) ADD_OPTION "--noconfirm" ;;
-                installed) installed=true;;
-                purge) ADD_OPTION "-n" ;;
-                debug) debug=true ;;
-                help) _usage; _exit 0 ;;
-            esac
+# Argument analysis and processing
+_opt_short="ydfc:hv"
+_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help"
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+if [[ ${?} != 0 ]]; then
+    exit 1
+fi
+
+eval set -- "${OPT}"
+echo "Argument is \"${OPT}\""
+unset OPT _opt_short _opt_long
+
+while true; do
+    case ${1} in
+        -y | --yes | --assume-yes)
+            ADD_OPTION "--noconfirm"
+            shift 1
+            ;;
+        -d | --download-only)
+            ADD_OPTION "-w"
+            shift 1
+            ;;
+        -f | --fix-broken)
+            shift 1
+            ;;
+        -c)
+            ADD_OPTION "--config ${2}"
+            shift 2
+            ;;
+        --purge)
+            ADD_OPTION "-n"
+            shift 1
+            ;;
+        --installed)
+            installed=true
+            shift 1
+            ;;
+        --debug)
+            debug=true
+            shift 1
+            ;;
+        -h | --help)
+            _usage
+            shift 1
+            exit 0
+            ;;
+        -v)
+            _version
+            shift 1
+            exit 0
+            ;;
+        --)
+            shift 1
+            break
+            ;;
+        *)
+            _msg_error "Invalid argument '${1}'"
+            _help
+            exit 1
+            ;;
     esac
 done
-
-shift $((OPTIND - 1))
 
 if [[ $# -lt 1 ]]; then
     _msg_error "No command specified"
@@ -205,5 +244,5 @@ if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pa
     _msg_debug "Use AUR helper ${PACMAN_COMMAND}."
 fi
 
-# echo "${PACMAN_COMMAND} ${OPTIONS} ${PACKAGE}"
-${PACMAN_COMMAND} ${OPTIONS} ${PACKAGE}
+# echo "${PACMAN_COMMAND} ${PACMAN_OPTIONS} ${PACKAGE}"
+${PACMAN_COMMAND} ${PACMAN_OPTIONS} ${PACKAGE}
