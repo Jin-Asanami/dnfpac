@@ -91,7 +91,7 @@ _usage () {
     echo "    -d | --download-only          Only download the package."
     echo "    -c <file>                     Config file for pacman."
     echo "    -h | --help                   Display this help."
-    echo "    -v                            Displays the version of pacman."
+    echo "    -v | --version                Displays the version of pacman."
     echo "    --purge                       Delete the entire configuration file."
 }
 
@@ -113,7 +113,7 @@ ADD_OPTION () {
 
 # Argument analysis and processing
 _opt_short="ydfc:hv"
-_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help"
+_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -157,7 +157,7 @@ while true; do
             shift 1
             exit 0
             ;;
-        -v)
+        -v | --version)
             _version
             shift 1
             exit 0
