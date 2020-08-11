@@ -120,7 +120,7 @@ if [[ ${?} != 0 ]]; then
 fi
 
 eval set -- "${OPT}"
-echo "Argument is \"${OPT}\""
+#echo "Argument is \"${OPT}\""
 unset OPT _opt_short _opt_long
 
 while true; do
