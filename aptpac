@@ -17,8 +17,8 @@ APTPAC_VERSION="2.2.0"
 
 set -e
 
-OPTIONS=
-AURHELPER="/usr/bin/hoge"
+PACMAN_OPTIONS=
+AURHELPER=
 HELPERS=(
     "/usr/bin/yay"
     "/usr/bin/yaourt"
