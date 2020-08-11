@@ -23,6 +23,7 @@ HELPERS=(
     "aurman"
 )
 
+debug=false
 pacman="pacman"
 
 
@@ -103,6 +104,7 @@ while getopts 'ydf-:c:hv' arg; do
                 assume-yes) ADD_OPTION "--noconfirm" ;;
                 installed) installed=true;;
                 purge) ADD_OPTION "-n" ;;
+                debug) debug=true ;;
                 help) _usage; _exit 0 ;;
             esac
     esac
