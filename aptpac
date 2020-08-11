@@ -136,8 +136,11 @@ case "${COMMAND}" in
     huawei) 
         if [[ "${LANG}" = "ja_JP.UTF-8" ]]; then
             echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
+            exit 0
+        else
+            _msg_error "Invalid comman '${COMMAND}'"
+            _exit 1
         fi
-        exit 0
         ;;
     moo)
 cat << EOF
