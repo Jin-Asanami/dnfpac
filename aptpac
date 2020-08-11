@@ -95,6 +95,12 @@ _msg_error () {
     echo -e "${@}" >&2
 }
 
+_msg_debug () {
+    if ${debug}; then
+        echo -e "${@}" >&1
+    fi
+}
+
 ADD_OPTION () {
     OPTIONS="${OPTIONS} ${@}"
 }
@@ -147,7 +153,7 @@ case "${COMMAND}" in
     huawei) 
         if [[ "${LANG}" = "ja_JP.UTF-8" ]]; then
             echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
-            exit 0
+            _exit 0
         else
             _msg_error "Invalid comman '${COMMAND}'"
             _exit 1
@@ -190,7 +196,7 @@ EOF
 esac
 
 if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pacman" ]]; then
-    echo "Use AUR helper ${PACMAN_COMMAND}."
+    _msg_debug "Use AUR helper ${PACMAN_COMMAND}."
 fi
 
 # echo "${PACMAN_COMMAND} ${OPTIONS} ${PACKAGE}"
