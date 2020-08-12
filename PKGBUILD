@@ -2,8 +2,8 @@
 # Maintainer: Abraham Levine <echo iue@trnspljc.890 | tr ietursnpl890jc acprlsurecomed>
 
 pkgname=aptpac
-pkgver=3.0.0
-pkgrel=2
+pkgver=3.0.1
+pkgrel=1
 pkgdesc="a pacman wrapper with syntax from debian's apt"
 arch=('any')
 url="https://github.com/FascodeNet/aptpac"
