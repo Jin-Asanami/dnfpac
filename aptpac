@@ -11,6 +11,7 @@
 #            \/_/         \/_/
 # a pacman wrapper with syntax based on debian's apt
 # (c) 2019-2020 Fascode Network.
+# License: Do What The Fuck You Want To Public License
 # maintained by Yamada Hayao
 
 APTPAC_VERSION="3.0.0"
@@ -102,6 +103,7 @@ _exit () {
 _version () {
 cat << EOF
 aptpac ${APTPAC_VERSION} - A pacman wrapper with syntax based on debian's apt
+License: Do What The Fuck You Want To Public License
 (c) 2019-2020 Fascode Network. Yamada Hayao
 EOF
 echo
