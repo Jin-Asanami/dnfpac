@@ -203,7 +203,7 @@ case "${COMMAND}" in
             echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
             _exit 0
         else
-            _msg_error "Invalid comman '${COMMAND}'"
+            _msg_error "Invalid command '${COMMAND}'"
             _exit 1
         fi
         ;;
@@ -238,7 +238,7 @@ EOF
         fi
         ;;
     *)
-        _msg_error "Invalid comman '${COMMAND}'"
+        _msg_error "Invalid command '${COMMAND}'"
         _exit 1
         ;;
 esac
