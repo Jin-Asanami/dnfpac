@@ -198,6 +198,7 @@ case "${COMMAND}" in
     edit-sources) sudo nano /etc/pacman.conf; _exit 0 ;;
     dist-upgrade) ADD_OPTION "-Syu" ;;
     huawei) 
+        source "/etc/locale.conf"
         if [[ "${LANG}" = "ja_JP.UTF-8" ]]; then
             echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
             _exit 0
