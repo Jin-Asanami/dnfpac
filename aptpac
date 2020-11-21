@@ -93,7 +93,7 @@ _usage () {
     echo " general options:       "
     echo "    -y | --yes  | --assume-yes    Do not check"
     echo "    -d | --download-only          Only download the package"
-    echo "    -c <file>                     Config file for pacman"
+    echo "    -c | --config-file <file>     Config file for pacman"
     echo "    -h | --help                   Display this help"
     echo "    -v | --version                Displays the version of aptpac and pacman"
     echo "         --purge                  Delete the entire configuration file"
@@ -120,7 +120,7 @@ ADD_OPTION () {
 
 # Argument analysis and processing
 _opt_short="ydfc:hv"
-_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version"
+_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -143,7 +143,7 @@ while true; do
         -f | --fix-broken)
             shift 1
             ;;
-        -c)
+        -c | --config-file)
             PACMAN_CONFIG="${2}"
             shift 2
             ;;
