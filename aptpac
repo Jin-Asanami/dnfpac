@@ -198,15 +198,38 @@ shift 1
 PACKAGE="${@}"
 
 case "${COMMAND}" in
-    install) ADD_OPTION "-S" ;;
-    remove) ADD_OPTION "-Rsc" ;;
-    purge) ADD_OPTION "-Rsnc" ;;
-    update) ADD_OPTION "-Syy" ;;
-    upgrade) ADD_OPTION "-Syu" ;;
-    search) ADD_OPTION "-Ss" ;;
-    full-upgrade) ADD_OPTION "-Syu" ;;
-    edit-sources) sudo nano /etc/pacman.conf; _exit 0 ;;
-    dist-upgrade) ADD_OPTION "-Syu" ;;
+    install)
+        ADD_OPTION "-S"
+        ;;
+    remove)
+        ADD_OPTION "-Rsc"
+        ;;
+    purge)
+        ADD_OPTION "-Rsnc"
+        ;;
+    update)
+        ADD_OPTION "-Syy"
+        ;;
+    upgrade)
+        ADD_OPTION "-Syu"
+        ;;
+    search)
+        ADD_OPTION "-Ss"
+        ;;
+    full-upgrade)
+        ADD_OPTION "-Syu"
+        ;;
+    edit-sources)
+        if [[ -n "${EDITOR}" ]]; then
+            sudo ${EDITOR} "${PACMAN_CONFIG}"
+        else
+            sudo nano "${PACMAN_CONFIG}"
+        fi
+        _exit 0
+        ;;
+    dist-upgrade)
+        ADD_OPTION "-Syu"
+        ;;
     huawei) 
         source "/etc/locale.conf"
         if [[ "${LANG}" = "ja_JP.UTF-8" ]]; then
