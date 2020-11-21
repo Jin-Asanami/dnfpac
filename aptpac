@@ -213,15 +213,13 @@ case "${COMMAND}" in
         fi
         ;;
     moo)
-cat << EOF
-         (__) 
-         (oo) 
-   /------\/ 
-  / |    ||   
- *  /\---/\ 
-    ~~   ~~   
-...."Have you mooed today?"...
-EOF
+    echo "         (__) "
+    echo "         (oo) "
+    echo "   /------\/ "
+    echo "  / |    ||   "
+    echo " *  /\---/\ "
+    echo "    ~~   ~~   "
+    echo "...."Have you mooed today?"..."
     exit 0
     ;;
     clean)
