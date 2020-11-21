@@ -225,11 +225,12 @@ case "${COMMAND}" in
     clean)
         ADD_OPTION "-Sccc"
         ;;
-    autoremove) if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
-                    ADD_OPTION "=Rsc"
-                    PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
-                else
-                    echo "No packages to remove"
+    autoremove) 
+        if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
+            ADD_OPTION "-Rsc"
+            PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
+         else
+            echo "No packages to remove"
                     exit 0
                 fi
                 ;;
