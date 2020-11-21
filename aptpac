@@ -213,15 +213,15 @@ case "${COMMAND}" in
         fi
         ;;
     moo)
-    echo "         (__) "
-    echo "         (oo) "
-    echo "   /------\/ "
-    echo "  / |    ||   "
-    echo " *  /\---/\ "
-    echo "    ~~   ~~   "
-    echo "...."Have you mooed today?"..."
-    exit 0
-    ;;
+        echo "         (__) "
+        echo "         (oo) "
+        echo "   /------\/ "
+        echo "  / |    ||   "
+        echo " *  /\---/\ "
+        echo "    ~~   ~~   "
+        echo "...."Have you mooed today?"..."
+        exit 0
+        ;;
     clean)
         ADD_OPTION "-Sccc"
         ;;
