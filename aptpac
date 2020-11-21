@@ -30,9 +30,7 @@ HELPERS=(
     "/usr/bin/pikaur"
     "/usr/bin/pacaur"
 )
-
-DEFAULT_PACMAN_COMMAND="pacman"
-
+DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 debug=false
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 
