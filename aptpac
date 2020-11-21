@@ -34,6 +34,7 @@ DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 debug=false
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 PACMAN_CONFIG="/etc/pacman.conf"
+autoremove=false
 
 _msg_error () {
     echo -e "${@}" >&2
@@ -78,25 +79,25 @@ installed=false
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
     echo " commands:              "
-    echo "    install                       Install the specified package"
-    echo "    remove                        Remove the specified package"
-    echo "    purge                         Permanently remove the package"
-    echo "    update                        Update the package database"
-    echo "    upgrade                       Update the package"
-    echo "    full-upgrade                  Update packages and remove unnecessary packages"
-    echo "    edit-sources                  Edit /etc/pacman.conf"
-    echo "    search                        Search for a package"
-    echo "    autoremove                    Remove unnecessary packages"
-    echo "    clean                         Remove the package cache"
-    echo "    list                          Displays a list of packages"
+    echo "    install                              Install the specified package"
+    echo "    remove                               Remove the specified package"
+    echo "    purge                                Permanently remove the package"
+    echo "    update                               Update package database"
+    echo "    upgrade | full-upgrade               Update packages"
+    echo "    edit-sources                         Edit config file of pacman"
+    echo "    search                               Search for a package"
+    echo "    autoremove                           Remove unnecessary packages"
+    echo "    clean                                Remove the package cache"
+    echo "    list                                 Displays a list of packages"
     echo
     echo " general options:       "
-    echo "    -y | --yes  | --assume-yes    Do not check"
-    echo "    -d | --download-only          Only download the package"
-    echo "    -c | --config-file <file>     Config file for pacman"
-    echo "    -h | --help                   Display this help"
-    echo "    -v | --version                Displays the version of aptpac and pacman"
-    echo "         --purge                  Delete the entire configuration file"
+    echo "    -y | --yes  | --assume-yes           Do not check"
+    echo "    -d | --download-only                 Only download the package"
+    echo "    -c | --config-file <file>            Config file for pacman"
+    echo "    -h | --help                          Display this help"
+    echo "    -v | --version                       Displays the version of aptpac and pacman"
+    echo "         --auto-remove | --autoremove    Remove unnecessary packages with other command"
+    echo "         --purge                         Delete the entire configuration file"
 }
 
 _exit () {
@@ -120,7 +121,7 @@ ADD_OPTION () {
 
 # Argument analysis and processing
 _opt_short="ydfc:hv"
-_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:"
+_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
 if [[ ${?} != 0 ]]; then
     exit 1
@@ -168,6 +169,10 @@ while true; do
             _version
             shift 1
             exit 0
+            ;;
+        --autoremove | --auto-remove)
+            autoremove=true
+            shift 1
             ;;
         --)
             shift 1
@@ -231,9 +236,9 @@ case "${COMMAND}" in
             PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
          else
             echo "No packages to remove"
-                    exit 0
-                fi
-                ;;
+            exit 0
+        fi
+        ;;
     list)
         if ${installed}; then
             ADD_OPTION "-Q | grep"
@@ -253,3 +258,12 @@ fi
 
 # echo "${PACMAN_COMMAND} ${PACMAN_OPTIONS} ${PACKAGE}"
 ${PACMAN_COMMAND} ${PACMAN_OPTIONS} --config "${PACMAN_CONFIG}" ${PACKAGE}
+
+if ${autoremove}; then
+    if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
+        ${PACMAN_COMMAND} -Rsc --config "${PACMAN_CONFIG}" $(${PACMAN_COMMAND} -Qttdq)
+    else
+        echo "No packages to remove"
+        exit 0
+    fi
+fi
