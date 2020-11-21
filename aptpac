@@ -65,7 +65,7 @@ if [[ ! "${UID}" = 0 ]]; then
         elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
             PACMAN_COMMAND="$(basename "${AURHELPER}")"
         else
-            _msg_error "${AURHELPER} is not installed."
+            _msg_error "${AURHELPER} is not installed"
             exit 1
         fi
     fi
@@ -78,23 +78,24 @@ installed=false
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
     echo " commands:              "
-    echo "    install                       Install the specified package."
-    echo "    remove                        Remove the specified package."
-    echo "    purge                         Permanently remove the package."
-    echo "    update                        Update the package database."
-    echo "    upgrade                       Update the package."
-    echo "    search                        Search for a package."
-    echo "    autoremove                    Remove unnecessary packages."
-    echo "    clean                         Remove the package cache."
-    echo "    list                          Displays a list of packages."
+    echo "    install                       Install the specified package"
+    echo "    remove                        Remove the specified package"
+    echo "    purge                         Permanently remove the package"
+    echo "    update                        Update the package database"
+    echo "    upgrade                       Update the package"
+    echo "    full-upgrade                  Update packages and remove unnecessary packages"
+    echo "    search                        Search for a package"
+    echo "    autoremove                    Remove unnecessary packages"
+    echo "    clean                         Remove the package cache"
+    echo "    list                          Displays a list of packages"
     echo
     echo " general options:       "
-    echo "    -y | --yes  | --assume-yes    Do not check."
-    echo "    -d | --download-only          Only download the package."
-    echo "    -c <file>                     Config file for pacman."
-    echo "    -h | --help                   Display this help."
-    echo "    -v | --version                Displays the version of aptpac and pacman."
-    echo "    --purge                       Delete the entire configuration file."
+    echo "    -y | --yes  | --assume-yes    Do not check"
+    echo "    -d | --download-only          Only download the package"
+    echo "    -c <file>                     Config file for pacman"
+    echo "    -h | --help                   Display this help"
+    echo "    -v | --version                Displays the version of aptpac and pacman"
+    echo "         --purge                  Delete the entire configuration file"
 }
 
 _exit () {
@@ -229,7 +230,7 @@ EOF
                     ADD_OPTION "=Rsc"
                     PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
                 else
-                    echo "No packages to remove."
+                    echo "No packages to remove"
                     exit 0
                 fi
                 ;;
@@ -247,7 +248,7 @@ EOF
 esac
 
 if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pacman" ]]; then
-    _msg_debug "Use AUR helper ${PACMAN_COMMAND}."
+    _msg_debug "Use AUR helper ${PACMAN_COMMAND}"
 fi
 
 # echo "${PACMAN_COMMAND} ${PACMAN_OPTIONS} ${PACKAGE}"
