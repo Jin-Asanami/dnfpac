@@ -84,6 +84,7 @@ _usage () {
     echo "    update                        Update the package database"
     echo "    upgrade                       Update the package"
     echo "    full-upgrade                  Update packages and remove unnecessary packages"
+    echo "    edit-sources                  Edit /etc/pacman.conf"
     echo "    search                        Search for a package"
     echo "    autoremove                    Remove unnecessary packages"
     echo "    clean                         Remove the package cache"
