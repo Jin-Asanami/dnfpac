@@ -81,6 +81,7 @@ installed=false
 
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
+    echo
     echo " apt commands:"
     echo "    install                              Install the specified package"
     echo "    remove                               Remove the specified package"
@@ -106,6 +107,8 @@ _usage () {
     echo "         --aur-helper <command>          Specifies the command to use as the AUR helper"
     echo "                                         Ignored if pacapt is run as root"
     echo "                                         Specify AUR helper that supports common command line options with pacman"
+    echo
+    echo " aptpac supports not only above options but also options of pacman"
 }
 
 _exit () {
