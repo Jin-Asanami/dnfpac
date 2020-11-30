@@ -21,7 +21,7 @@ AURHELPER=
 
 
 set -e
-APTPAC_VERSION="3.1.0"
+APTPAC_VERSION="3.2.1"
 PACMAN_OPTIONS=
 HELPERS=(
     "/usr/bin/yay"
