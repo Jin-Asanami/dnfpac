@@ -32,9 +32,11 @@ HELPERS=(
     "/usr/bin/aura"
 )
 DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
-debug=false
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 PACMAN_CONFIG="/etc/pacman.conf"
+
+direct_option=false
+debug=false
 autoremove=false
 
 _msg_error () {
@@ -79,6 +81,7 @@ installed=false
 
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
+    echo
     echo " apt commands:"
     echo "    install                              Install the specified package"
     echo "    remove                               Remove the specified package"
@@ -104,6 +107,8 @@ _usage () {
     echo "         --aur-helper <command>          Specifies the command to use as the AUR helper"
     echo "                                         Ignored if pacapt is run as root"
     echo "                                         Specify AUR helper that supports common command line options with pacman"
+    echo
+    echo " aptpac supports not only above options but also options of pacman"
 }
 
 _exit () {
@@ -126,12 +131,15 @@ ADD_OPTION () {
 }
 
 # Argument analysis and processing
-_opt_short="ydfc:hv"
+set +e
+PACAPT_ARGUMENTS="${@}"
+_opt_short="ydfc:hvVDFQRSTU"
 _opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
-if [[ ${?} != 0 ]]; then
-    exit 1
-fi
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}" 2> /dev/null)
+set -e
+#if [[ ${?} != 0 ]]; then
+#    exit 1
+#fi
 
 eval set -- "${OPT}"
 #echo "Argument is \"${OPT}\""
@@ -191,6 +199,12 @@ while true; do
                 _msg_error "${2} is not installed"
                 exit 1
             fi
+            break
+            ;;
+        -V | -D | -F | -Q | -R | -S | -T | -U)
+            direct_option=true
+            ADD_OPTION "${PACAPT_ARGUMENTS}"
+            break
             ;;
         --)
             shift 1
@@ -204,94 +218,96 @@ while true; do
     esac
 done
 
-if [[ $# -lt 1 ]]; then
-    _msg_error "No command specified"
-    _usage
-    _exit 1
-fi
-COMMAND="${1}"
+if [[ "${direct_option}" = false ]]; then
+    if [[ $# -lt 1 ]]; then
+        _msg_error "No command specified"
+        _usage
+        _exit 1
+    fi
+    COMMAND="${1}"
 
-shift 1
+    shift 1
 
-PACKAGE="${@}"
+    PACKAGE="${@}"
 
-case "${COMMAND}" in
-    install)
-        ADD_OPTION "-S"
-        ;;
-    remove)
-        ADD_OPTION "-Rsc"
-        ;;
-    purge)
-        ADD_OPTION "-Rsnc"
-        ;;
-    update)
-        ADD_OPTION "-Syy"
-        ;;
-    upgrade)
-        ADD_OPTION "-Syu"
-        ;;
-    search)
-        ADD_OPTION "-Ss"
-        ;;
-    full-upgrade)
-        ADD_OPTION "-Syu"
-        ;;
-    edit-sources)
-        if [[ -n "${EDITOR}" ]]; then
-            sudo ${EDITOR} "${PACMAN_CONFIG}"
-        else
-            sudo nano "${PACMAN_CONFIG}"
-        fi
-        _exit 0
-        ;;
-    dist-upgrade)
-        ADD_OPTION "-Syu"
-        ;;
-    huawei) 
-        source "/etc/locale.conf"
-        if [[ "${LANG}" = "ja_JP.UTF-8" ]]; then
-            echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
+    case "${COMMAND}" in
+        install)
+            ADD_OPTION "-S"
+            ;;
+        remove)
+            ADD_OPTION "-Rsc"
+            ;;
+        purge)
+            ADD_OPTION "-Rsnc"
+            ;;
+        update)
+            ADD_OPTION "-Syy"
+            ;;
+        upgrade)
+            ADD_OPTION "-Syu"
+            ;;
+        search)
+            ADD_OPTION "-Ss"
+            ;;
+        full-upgrade)
+            ADD_OPTION "-Syu"
+            ;;
+        edit-sources)
+            if [[ -n "${EDITOR}" ]]; then
+                sudo ${EDITOR} "${PACMAN_CONFIG}"
+            else
+                sudo nano "${PACMAN_CONFIG}"
+            fi
             _exit 0
-        else
+            ;;
+        dist-upgrade)
+            ADD_OPTION "-Syu"
+            ;;
+        huawei) 
+            source "/etc/locale.conf"
+            if [[ "${LANG}" = "ja_JP.UTF-8" ]]; then
+                echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
+                _exit 0
+            else
+                _msg_error "Invalid command '${COMMAND}'"
+                _exit 1
+            fi
+            ;;
+        moo)
+            echo "         (__) "
+            echo "         (oo) "
+            echo "   /------\/ "
+            echo "  / |    ||   "
+            echo " *  /\---/\ "
+            echo "    ~~   ~~   "
+            echo "...."Have you mooed today?"..."
+            exit 0
+            ;;
+        clean)
+            ADD_OPTION "-Sccc"
+            ;;
+        autoremove) 
+            if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
+                ADD_OPTION "-Rsc"
+                PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
+            else
+                echo "No packages to remove"
+                exit 0
+            fi
+            ;;
+        list)
+            if ${installed}; then
+                ADD_OPTION "-Q | grep"
+            else
+                ADD_OPTION "-Ss"
+            fi
+            ;;
+        *)
             _msg_error "Invalid command '${COMMAND}'"
             _exit 1
-        fi
-        ;;
-    moo)
-        echo "         (__) "
-        echo "         (oo) "
-        echo "   /------\/ "
-        echo "  / |    ||   "
-        echo " *  /\---/\ "
-        echo "    ~~   ~~   "
-        echo "...."Have you mooed today?"..."
-        exit 0
-        ;;
-    clean)
-        ADD_OPTION "-Sccc"
-        ;;
-    autoremove) 
-        if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
-            ADD_OPTION "-Rsc"
-            PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
-         else
-            echo "No packages to remove"
-            exit 0
-        fi
-        ;;
-    list)
-        if ${installed}; then
-            ADD_OPTION "-Q | grep"
-        else
-            ADD_OPTION "-Ss"
-        fi
-        ;;
-    *)
-        _msg_error "Invalid command '${COMMAND}'"
-        _exit 1
-        ;;
-esac
+            ;;
+    esac
+fi
 
 if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pacman" ]]; then
     _msg_debug "Use AUR helper ${PACMAN_COMMAND}"
