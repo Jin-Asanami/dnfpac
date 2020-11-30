@@ -29,6 +29,7 @@ HELPERS=(
     "/usr/bin/aurman"
     "/usr/bin/pikaur"
     "/usr/bin/pacaur"
+    "/usr/bin/aura"
 )
 DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 debug=false
