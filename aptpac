@@ -129,9 +129,10 @@ ADD_OPTION () {
 
 # Argument analysis and processing
 set +e
+PACAPT_ARGUMENTS="${@}"
 _opt_short="ydfc:hvVDFQRSTU"
 _opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove"
-OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}")
+OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}" 2> /dev/null)
 set -e
 #if [[ ${?} != 0 ]]; then
 #    exit 1
@@ -199,7 +200,7 @@ while true; do
             ;;
         -V | -D | -F | -Q | -R | -S | -T | -U)
             direct_option=true
-            ADD_OPTION "${@}"
+            ADD_OPTION "${PACAPT_ARGUMENTS}"
             break
             ;;
         --)
