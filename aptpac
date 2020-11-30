@@ -79,7 +79,7 @@ installed=false
 
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
-    echo " commands:              "
+    echo " apt commands:"
     echo "    install                              Install the specified package"
     echo "    remove                               Remove the specified package"
     echo "    purge                                Permanently remove the package"
@@ -91,7 +91,7 @@ _usage () {
     echo "    clean                                Remove the package cache"
     echo "    list                                 Displays a list of packages"
     echo
-    echo " general options:       "
+    echo " apt options:"
     echo "    -y | --yes  | --assume-yes           Do not check"
     echo "    -d | --download-only                 Only download the package"
     echo "    -c | --config-file <file>            Config file for pacman"
@@ -99,6 +99,11 @@ _usage () {
     echo "    -v | --version                       Displays the version of aptpac and pacman"
     echo "         --auto-remove | --autoremove    Remove unnecessary packages with other command"
     echo "         --purge                         Delete the entire configuration file"
+    echo
+    echo " pacapt options:"
+    echo "         --aur-helper <command>          Specifies the command to use as the AUR helper"
+    echo "                                         Ignored if pacapt is run as root"
+    echo "                                         Specify AUR helper that supports common command line options with pacman"
 }
 
 _exit () {
@@ -174,6 +179,18 @@ while true; do
         --autoremove | --auto-remove)
             autoremove=true
             shift 1
+            ;;
+        --aur-helper)
+            if [[ ! "${UID}" = 0 ]] && [[ -f "${2}" ]]; then
+                PACMAN_COMMAND="${2}"
+            elif [[ "${UID}" = 0 ]]; then
+                _msg_warn "The specified AUR helper is not used because pacapt is running on the root."
+            elif hash "$(basename "${2}")" 2> /dev/null; then
+                PACMAN_COMMAND="$(basename "${2}")"
+            else
+                _msg_error "${2} is not installed"
+                exit 1
+            fi
             ;;
         --)
             shift 1
