@@ -30,6 +30,7 @@ HELPERS=(
     "/usr/bin/pikaur"
     "/usr/bin/pacaur"
     "/usr/bin/aura"
+    "/usr/bin/wfa"
 )
 DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
