@@ -135,7 +135,7 @@ ADD_OPTION () {
 set +e
 PACAPT_ARGUMENTS="${@}"
 _opt_short="ydfc:hvVDFQRSTU"
-_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove"
+_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove,aur-helper:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}" 2> /dev/null)
 set -e
 #if [[ ${?} != 0 ]]; then
@@ -200,7 +200,7 @@ while true; do
                 _msg_error "${2} is not installed"
                 exit 1
             fi
-            break
+            shift 2
             ;;
         -V | -D | -F | -Q | -R | -S | -T | -U)
             direct_option=true
