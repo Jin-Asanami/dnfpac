@@ -230,7 +230,7 @@ if [[ "${direct_option}" = false ]]; then
 
     shift 1
 
-    PACKAGE="${@}"
+    PACKAGE=("${@}")
 
     case "${COMMAND}" in
         install)
@@ -288,9 +288,9 @@ if [[ "${direct_option}" = false ]]; then
             ADD_OPTION "-Sccc"
             ;;
         autoremove) 
-            if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
+            if [[ -n "$(${PACMAN_COMMAND} -Qttdq)" ]]; then
                 ADD_OPTION "-Rsc"
-                PACKAGE="$(${PACMAN_COMMAND} -Qttdq)"
+                PACKAGE=($(${PACMAN_COMMAND} -Qttdq))
             else
                 echo "No packages to remove"
                 exit 0
@@ -326,7 +326,7 @@ if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pa
 fi
 
 # echo "${PACMAN_COMMAND} ${PACMAN_OPTIONS} ${PACKAGE}"
-${PACMAN_COMMAND} ${PACMAN_OPTIONS} --config "${PACMAN_CONFIG}" ${PACKAGE}
+${PACMAN_COMMAND} ${PACMAN_OPTIONS} --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
 
 if ${autoremove}; then
     if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
