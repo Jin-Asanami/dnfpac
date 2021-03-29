@@ -94,6 +94,7 @@ _usage () {
     echo "    autoremove                           Remove unnecessary packages"
     echo "    clean                                Remove the package cache"
     echo "    list                                 Displays a list of packages"
+    echo "    show                                 Displays the package records"
     echo
     echo " apt options:"
     echo "    -y | --yes  | --assume-yes           Do not check"
@@ -302,6 +303,9 @@ if [[ "${direct_option}" = false ]]; then
             else
                 ADD_OPTION "-Ss"
             fi
+            ;;
+        show)
+            ADD_OPTION "-Qi"
             ;;
         *)
             _msg_error "Invalid command '${COMMAND}'"
