@@ -304,7 +304,15 @@ if [[ "${direct_option}" = false ]]; then
             fi
             ;;
         show)
-            ADD_OPTION "-Qi"
+            if (( "${#PACKAGE[@]}" != 1 )); then
+                _msg_error "Please specify only one package."
+                exit 1
+            fi
+            if pacman -Qq "${PACKAGE[0]}" 2> /dev/null 1>&2; then
+                ADD_OPTION "-Qi"
+            else
+                ADD_OPTION "-Si"
+            fi
             ;;
         *)
             _msg_error "Invalid command '${COMMAND}'"
