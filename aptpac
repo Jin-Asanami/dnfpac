@@ -24,6 +24,7 @@ APTPAC_VERSION="3.2.1"
 PACMAN_OPTIONS=
 HELPERS=(
     "/usr/bin/yay"
+    "/usr/bin/paru"
     "/usr/bin/yaourt"
     "/usr/bin/aurman"
     "/usr/bin/pikaur"
@@ -50,7 +51,7 @@ _msg_debug () {
 }
 
 if [[ ! "${UID}" = 0 ]]; then
-    if [[ -z "${AURHELPER}" ]]; then
+    if [[ -z "${AURHELPER+SET}" ]]; then
         for AURHELPER in ${HELPERS[@]}; do
             if [[ -f "${AURHELPER}" ]]; then
                 PACMAN_COMMAND="${AURHELPER}"
