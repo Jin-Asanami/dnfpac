@@ -93,15 +93,16 @@ _usage () {
     echo "    search                               Search for a package"
     echo "    autoremove                           Remove unnecessary packages"
     echo "    clean                                Remove the package cache"
-    echo "    list                                 Displays a list of packages"
-    echo "    show                                 Displays the package records"
+    echo "    list                                 Display a list of packages"
+    echo "    show | showpkg                       Display the package records"
+    echo "    rdepends                             Display the dependencies"
     echo
     echo " apt options:"
     echo "    -y | --yes  | --assume-yes           Do not check"
     echo "    -d | --download-only                 Only download the package"
     echo "    -c | --config-file <file>            Config file for pacman"
     echo "    -h | --help                          Display this help"
-    echo "    -v | --version                       Displays the version of aptpac and pacman"
+    echo "    -v | --version                       Display the version of aptpac and pacman"
     echo "         --auto-remove | --autoremove    Remove unnecessary packages with other command"
     echo "         --purge                         Delete the entire configuration file"
     echo
@@ -303,7 +304,7 @@ if [[ "${direct_option}" = false ]]; then
                 ADD_OPTION "-Ss"
             fi
             ;;
-        show)
+        show | showpkg)
             for pkg in "${PACKAGE[@]}"; do
                 if pacman -Qq "${pkg}" 2> /dev/null 1>&2; then
                     ${PACMAN_COMMAND} ${PACMAN_OPTIONS} -Qi --config "${PACMAN_CONFIG}" "${pkg}"
@@ -313,6 +314,8 @@ if [[ "${direct_option}" = false ]]; then
             done
             _exit 0
             ;;
+        rdepends)
+            ADD_OPTION "-Sii"
         *)
             _msg_error "Invalid command '${COMMAND}'"
             _exit 1
