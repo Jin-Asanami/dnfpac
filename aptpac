@@ -35,9 +35,10 @@ HELPERS=(
 DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 PACMAN_CONFIG="/etc/pacman.conf"
+DEBUG=false
+RUN_WITH_SUDO=false
 
 direct_option=false
-debug=false
 autoremove=false
 
 _msg_error () {
@@ -45,7 +46,7 @@ _msg_error () {
 }
 
 _msg_debug () {
-    if ${debug}; then
+    if "${DEBUG}"; then
         echo -e "${@}" >&1
     fi
 }
@@ -61,9 +62,6 @@ if [[ ! "${UID}" = 0 ]]; then
                 break
             fi
         done
-        if [[ "${PACMAN_COMMAND}" == "${DEFAULT_PACMAN_COMMAND}" ]]; then
-            PACMAN_COMMAND="sudo ${DEFAULT_PACMAN_COMMAND}"
-        fi
     else
         if [[ -f "${AURHELPER}" ]]; then
             PACMAN_COMMAND="${AURHELPER}"
@@ -174,7 +172,7 @@ while true; do
             shift 1
             ;;
         --debug)
-            debug=true
+            DEBUG=true
             shift 1
             ;;
         -h | --help)
@@ -327,16 +325,25 @@ if [[ "${direct_option}" = false ]]; then
     esac
 fi
 
-if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pacman" ]]; then
+if [[ ! "${PACMAN_COMMAND}" = "${DEFAULT_PACMAN_COMMAND}" ]] && [[ ! "$(basename "${PACMAN_COMMAND}")" = "$(basename "${DEFAULT_PACMAN_COMMAND}")" ]]; then
     _msg_debug "Use AUR helper ${PACMAN_COMMAND}"
+else
+    RUN_WITH_SUDO=true
 fi
 
-# echo "${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}"" ${PACKAGE}"
-${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
+_sudo(){
+    if "${RUN_WITH_SUDO}"; then
+        eval sudo "${@}"
+    else
+        eval "${@}"
+    fi
+}
 
-if ${autoremove}; then
+_sudo "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
+
+if "${autoremove}"; then
     if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
-        ${PACMAN_COMMAND} -Rsc --config "${PACMAN_CONFIG}" $(${PACMAN_COMMAND} -Qttdq)
+        _sudo "${PACMAN_COMMAND}" -Rsc --config "${PACMAN_CONFIG}" $(_sudo "${PACMAN_COMMAND}" -Qttdq)
     else
         echo "No packages to remove"
         exit 0
