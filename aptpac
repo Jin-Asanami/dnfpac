@@ -21,7 +21,7 @@
 
 set -e
 APTPAC_VERSION="3.2.1"
-PACMAN_OPTIONS=
+PACMAN_OPTIONS=()
 HELPERS=(
     "/usr/bin/yay"
     "/usr/bin/paru"
@@ -52,7 +52,7 @@ _msg_debug () {
 
 if [[ ! "${UID}" = 0 ]]; then
     if [[ -z "${AURHELPER+SET}" ]]; then
-        for AURHELPER in ${HELPERS[@]}; do
+        for AURHELPER in "${HELPERS[@]}"; do
             if [[ -f "${AURHELPER}" ]]; then
                 PACMAN_COMMAND="${AURHELPER}"
                 break
@@ -130,12 +130,12 @@ pacman --version
 
 
 ADD_OPTION () {
-    PACMAN_OPTIONS="${PACMAN_OPTIONS} ${@}"
+    PACMAN_OPTIONS+=("${@}")
 }
 
 # Argument analysis and processing
 set +e
-PACAPT_ARGUMENTS="${@}"
+PACAPT_ARGUMENTS=("${@}")
 _opt_short="ydfc:hvVDFQRSTU"
 _opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove,aur-helper:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}" 2> /dev/null)
@@ -149,7 +149,7 @@ eval set -- "${OPT}"
 unset OPT _opt_short _opt_long
 
 while true; do
-    case ${1} in
+    case "${1}" in
         -y | --yes | --assume-yes)
             ADD_OPTION "--noconfirm"
             shift 1
@@ -206,7 +206,7 @@ while true; do
             ;;
         -V | -D | -F | -Q | -R | -S | -T | -U)
             direct_option=true
-            ADD_OPTION "${PACAPT_ARGUMENTS}"
+            ADD_OPTION "${PACAPT_ARGUMENTS[@]}"
             break
             ;;
         --)
@@ -309,9 +309,9 @@ if [[ "${direct_option}" = false ]]; then
         show | showpkg)
             for pkg in "${PACKAGE[@]}"; do
                 if pacman -Qq "${pkg}" 2> /dev/null 1>&2; then
-                    ${PACMAN_COMMAND} ${PACMAN_OPTIONS} -Qi --config "${PACMAN_CONFIG}" "${pkg}"
+                    ${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}" -Qi --config "${PACMAN_CONFIG}" "${pkg}"
                 else
-                    ${PACMAN_COMMAND} ${PACMAN_OPTIONS} -Si --config "${PACMAN_CONFIG}" "${pkg}"
+                    ${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}" -Si --config "${PACMAN_CONFIG}" "${pkg}"
                 fi
             done
             unset pkg
@@ -331,8 +331,8 @@ if [[ ! "${PACMAN_COMMAND}" = "pacman" ]] && [[ ! "${PACMAN_COMMAND}" = "sudo pa
     _msg_debug "Use AUR helper ${PACMAN_COMMAND}"
 fi
 
-# echo "${PACMAN_COMMAND} ${PACMAN_OPTIONS} ${PACKAGE}"
-${PACMAN_COMMAND} ${PACMAN_OPTIONS} --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
+# echo "${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}"" ${PACKAGE}"
+${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
 
 if ${autoremove}; then
     if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
