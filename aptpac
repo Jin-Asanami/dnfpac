@@ -291,7 +291,9 @@ if [[ "${direct_option}" = false ]]; then
         autoremove) 
             if [[ -n "$(${PACMAN_COMMAND} -Qttdq)" ]]; then
                 ADD_OPTION "-Rsc"
-                PACKAGE=($(${PACMAN_COMMAND} -Qttdq))
+                while read -r pkg; do
+                    PACKAGE+=("${pkg}")
+                done < <(${PACMAN_COMMAND} -Qttdq)
             else
                 echo "No packages to remove"
                 exit 0
@@ -312,6 +314,7 @@ if [[ "${direct_option}" = false ]]; then
                     ${PACMAN_COMMAND} ${PACMAN_OPTIONS} -Si --config "${PACMAN_CONFIG}" "${pkg}"
                 fi
             done
+            unset pkg
             _exit 0
             ;;
         rdepends)
