@@ -16,8 +16,7 @@
 
 # Enter the path to the AUR helper you want to use here. 
 # If it is empty, the corresponding AUR helper will be searched automatically.
-AURHELPER=
-
+#AURHELPER=
 
 
 set -e
