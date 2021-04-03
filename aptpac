@@ -115,7 +115,7 @@ _usage () {
 }
 
 _exit () {
-    exit ${1}
+    exit "${1}"
 }
 
 _version () {
@@ -263,7 +263,7 @@ if [[ "${direct_option}" = false ]]; then
             ;;
         edit-sources)
             if [[ -n "${EDITOR}" ]]; then
-                sudo ${EDITOR} "${PACMAN_CONFIG}"
+                sudo "${EDITOR}" "${PACMAN_CONFIG}"
             else
                 sudo nano "${PACMAN_CONFIG}"
             fi
