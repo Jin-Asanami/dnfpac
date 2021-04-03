@@ -1,5 +1,5 @@
-# Maintaoner: Yamada Hayao <development@fascode.net>
-# Maintainer: Abraham Levine <echo iue@trnspljc.890 | tr ietursnpl890jc acprlsurecomed>
+# Maintainer: Yamada Hayao <development@fascode.net>
+# Contributor: Abraham Levine <echo iue@trnspljc.890 | tr ietursnpl890jc acprlsurecomed>
 
 _gitname='aptpac'
 pkgname="${_gitname}-git"
