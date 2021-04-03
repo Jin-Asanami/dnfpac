@@ -343,7 +343,7 @@ _sudo "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${
 
 if "${autoremove}"; then
     if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
-        _sudo "${PACMAN_COMMAND}" -Rsc --config "${PACMAN_CONFIG}" $(_sudo "${PACMAN_COMMAND}" -Qttdq)
+        "${PACMAN_COMMAND}" -Qttdq | _sudo "${PACMAN_COMMAND}" -Rsc --config "${PACMAN_CONFIG}" -
     else
         echo "No packages to remove"
         exit 0
