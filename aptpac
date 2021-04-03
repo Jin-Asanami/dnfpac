@@ -254,6 +254,12 @@ if [[ "${direct_option}" = false ]]; then
         full-upgrade)
             ADD_OPTION "-Syu"
             ;;
+        clean)
+            ADD_OPTION "-Sccc"
+            ;;
+        dist-upgrade)
+            ADD_OPTION "-Syu"
+            ;;
         edit-sources)
             if [[ -n "${EDITOR}" ]]; then
                 sudo ${EDITOR} "${PACMAN_CONFIG}"
@@ -261,9 +267,6 @@ if [[ "${direct_option}" = false ]]; then
                 sudo nano "${PACMAN_CONFIG}"
             fi
             _exit 0
-            ;;
-        dist-upgrade)
-            ADD_OPTION "-Syu"
             ;;
         huawei) 
             if [[ "$(source "/etc/locale.conf" 2> /dev/null; echo -n "${LANG}")" = "ja_JP.UTF-8" ]]; then
@@ -284,9 +287,6 @@ if [[ "${direct_option}" = false ]]; then
             echo "...."Have you mooed today?"..."
             exit 0
             ;;
-        clean)
-            ADD_OPTION "-Sccc"
-            ;;
         autoremove) 
             if [[ -n "$(${PACMAN_COMMAND} -Qttdq)" ]]; then
                 ADD_OPTION "-Rsc"
@@ -304,15 +304,14 @@ if [[ "${direct_option}" = false ]]; then
             fi
             ;;
         show)
-            if (( "${#PACKAGE[@]}" != 1 )); then
-                _msg_error "Please specify only one package."
-                exit 1
-            fi
-            if pacman -Qq "${PACKAGE[0]}" 2> /dev/null 1>&2; then
-                ADD_OPTION "-Qi"
-            else
-                ADD_OPTION "-Si"
-            fi
+            for pkg in "${PACKAGE[@]}"; do
+                if pacman -Qq "${pkg}" 2> /dev/null 1>&2; then
+                    ${PACMAN_COMMAND} ${PACMAN_OPTIONS} -Qi --config "${PACMAN_CONFIG}" "${pkg}"
+                else
+                    ${PACMAN_COMMAND} ${PACMAN_OPTIONS} -Si --config "${PACMAN_CONFIG}" "${pkg}"
+                fi
+            done
+            _exit 0
             ;;
         *)
             _msg_error "Invalid command '${COMMAND}'"
