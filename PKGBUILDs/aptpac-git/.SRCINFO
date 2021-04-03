@@ -1,6 +1,6 @@
 pkgbase = aptpac-git
 	pkgdesc = a pacman wrapper with syntax from debian's apt
-	pkgver = 3.3.0
+	pkgver = 100.416b5c0
 	pkgrel = 1
 	url = https://github.com/FascodeNet/aptpac
 	arch = any

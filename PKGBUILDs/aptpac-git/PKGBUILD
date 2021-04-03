@@ -4,8 +4,8 @@
 _gitname='aptpac'
 pkgname="${_gitname}-git"
 pkgdesc="a pacman wrapper with syntax from debian's apt"
-pkgver="3.3.0"
-pkgrel="1"
+pkgver=100.416b5c0
+pkgrel=1
 
 arch=('any')
 url="https://github.com/FascodeNet/aptpac"
