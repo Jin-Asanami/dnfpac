@@ -20,7 +20,7 @@
 
 
 set -e
-APTPAC_VERSION="3.2.1"
+APTPAC_VERSION="3.3.0"
 PACMAN_OPTIONS=()
 HELPERS=(
     "/usr/bin/yay"
