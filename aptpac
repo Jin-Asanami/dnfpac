@@ -21,8 +21,15 @@
 set -e
 
 
+# APTPAC Version
 APTPAC_VERSION="3.3.0"
-PACMAN_OPTIONS=()
+
+# Initilize List
+PACMAN_PACKAGE_FILE=()
+PACMAN_PACKAGE=()
+DEB_PACKAGE_FILE=()
+
+# PACMAN Config
 HELPERS=(
     "/usr/bin/yay"
     "/usr/bin/paru"
@@ -33,14 +40,18 @@ HELPERS=(
     "/usr/bin/aura"
     "/usr/bin/wfa"
 )
+PACMAN_OPTIONS=()
 DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 PACMAN_CONFIG="/etc/pacman.conf"
+
+# APTPAC Config
+DEBTAP_WORK="/tmp/aptpac-debtap"
 DEBUG=false
 RUN_WITH_SUDO=false
-
 DIRECT_PACMAN=false
 AUTOREMOVE=false
+INSTALL=false
 
 _msg_error () {
     echo -e "${@}" >&2
@@ -54,7 +65,7 @@ _msg_debug () {
 
 
 # List option
-installed=false
+INSTALLED_PKGLIST=false
 
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
@@ -118,6 +129,10 @@ _sudo(){
     fi
 }
 
+_pacman(){
+    _sudo "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${@}"
+}
+
 _run_detect_aur_helper(){
     if [[ ! "${UID}" = 0 ]]; then
         if [[ -z "${AURHELPER+SET}" ]]; then
@@ -162,8 +177,52 @@ _run_autoremove(){
     fi
 }
 
+_run_distinguish_package(){
+    local pkg
+    for pkg in "${PACKAGE[@]}"; do
+        if [[ ! -f "${pkg}" ]]; then
+            PACMAN_PACKAGE+=("${pkg}")
+        elif [[ "$(file -b --mime-type "${pkg}" 2> /dev/null)" = "application/vnd.debian.binary-package" ]]; then
+            DEB_PACKAGE_FILE+=("${pkg}")
+        else
+            PACMAN_PACKAGE_FILE+=("${pkg}")
+        fi
+    done
+}
+
 _run_pacman(){
-    _sudo "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
+    if [[ "${INSTALL}" = true ]]; then
+        _pacman -S "${PACMAN_PACKAGE[@]}"
+    else
+        _pacman "${PACMAN_PACKAGE[@]}"
+    fi
+}
+
+_run_debtap(){
+    if (( "${#DEB_PACKAGE_FILE[@]}" != 0 )) && ! hash "debtap"; then
+        _msg_error "debtap was not found"
+        exit 1
+    fi
+
+    if [[ -z "$(find "/var/cache/pkgfile" -maxdepth 1 -mindepth 1 -name "*.files" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-packages" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-files" 2> /dev/null)" ]]; then
+        sudo debtap -u
+    fi
+
+    (
+        sudo mkdir -p "${DEBTAP_WORK}"
+        local pkg work
+        for pkg in "${DEB_PACKAGE_FILE[@]}"; do
+            work="${DEBTAP_WORK}/$(basename "${pkg}")/"
+            file="${work}/$(basename "${pkg}")"
+            sudo mkdir -p "${work}"
+            cd "${work}"
+            sudo cp "${pkg}" "${file}"
+            sudo debtap --Quiet "${file}"
+            while read -r archpkg; do
+                _pacman -U "${archpkg}"
+            done < <(find "${work}" -maxdepth 1 -mindepth 1 -type f -name "*.pkg.tar.*")
+        done
+    )
 }
 
 
@@ -204,7 +263,7 @@ while true; do
             shift 1
             ;;
         --installed)
-            installed=true
+            INSTALLED_PKGLIST=true
             shift 1
             ;;
         --debug)
@@ -269,7 +328,8 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
 
     case "${COMMAND}" in
         install)
-            ADD_OPTION "-S"
+            #ADD_OPTION "-S"
+            INSTALL=true
             ;;
         remove)
             ADD_OPTION "-Rsc"
@@ -334,7 +394,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
             fi
             ;;
         list)
-            if ${installed}; then
+            if [[ "${INSTALLED_PKGLIST}" = true ]]; then
                 ADD_OPTION "-Q | grep"
             else
                 ADD_OPTION "-Ss"
@@ -368,5 +428,9 @@ fi
 
 _run_detect_aur_helper
 _run_aur_message
+_run_distinguish_package
 _run_pacman
+if [[ "${INSTALL}" = true ]]; then
+    _run_debtap  
+fi
 _run_autoremove
