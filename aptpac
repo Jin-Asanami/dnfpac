@@ -40,7 +40,7 @@ DEBUG=false
 RUN_WITH_SUDO=false
 
 DIRECT_PACMAN=false
-autoremove=false
+AUTOREMOVE=false
 
 _msg_error () {
     echo -e "${@}" >&2
@@ -152,7 +152,7 @@ _run_aur_message(){
 }
 
 _run_autoremove(){
-    if "${autoremove}"; then
+    if "${AUTOREMOVE}"; then
         if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
             "${PACMAN_COMMAND}" -Qttdq | _sudo "${PACMAN_COMMAND}" -Rsc --config "${PACMAN_CONFIG}" -
         else
@@ -222,7 +222,7 @@ while true; do
             exit 0
             ;;
         --autoremove | --auto-remove)
-            autoremove=true
+            AUTOREMOVE=true
             shift 1
             ;;
         --aur-helper)
@@ -261,7 +261,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
         _usage
         _exit 1
     fi
-    COMMAND="${1}"
+    COMMAND="${1,,}"
 
     shift 1
 
