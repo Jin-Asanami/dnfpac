@@ -18,8 +18,9 @@
 # If it is empty, the corresponding AUR helper will be searched automatically.
 #AURHELPER=
 
-
 set -e
+
+
 APTPAC_VERSION="3.3.0"
 PACMAN_OPTIONS=()
 HELPERS=(
@@ -38,7 +39,7 @@ PACMAN_CONFIG="/etc/pacman.conf"
 DEBUG=false
 RUN_WITH_SUDO=false
 
-direct_option=false
+DIRECT_PACMAN=false
 autoremove=false
 
 _msg_error () {
@@ -50,29 +51,6 @@ _msg_debug () {
         echo -e "${@}" >&1
     fi
 }
-
-if [[ ! "${UID}" = 0 ]]; then
-    if [[ -z "${AURHELPER+SET}" ]]; then
-        for AURHELPER in "${HELPERS[@]}"; do
-            if [[ -f "${AURHELPER}" ]]; then
-                PACMAN_COMMAND="${AURHELPER}"
-                break
-            elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
-                PACMAN_COMMAND="$(basename "${AURHELPER}")"
-                break
-            fi
-        done
-    else
-        if [[ -f "${AURHELPER}" ]]; then
-            PACMAN_COMMAND="${AURHELPER}"
-        elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
-            PACMAN_COMMAND="$(basename "${AURHELPER}")"
-        else
-            _msg_error "${AURHELPER} is not installed"
-            exit 1
-        fi
-    fi
-fi
 
 
 # List option
@@ -109,7 +87,9 @@ _usage () {
     echo "                                         Ignored if pacapt is run as root"
     echo "                                         Specify AUR helper that supports common command line options with pacman"
     echo
-    echo " aptpac supports not only above options but also options of pacman"
+    echo " Notes:"
+    echo "    - aptpac supports not only above options but also options of pacman"
+    echo "    - If you specify the deb file, you can install using debtap"
 }
 
 _exit () {
@@ -122,14 +102,70 @@ aptpac ${APTPAC_VERSION} - A pacman wrapper with syntax based on debian's apt
 License: Do What The Fuck You Want To Public License
 (c) 2019-2020 Fascode Network. Yamada Hayao
 EOF
-echo
-pacman --version
+    echo
+    pacman --version
 }
-
 
 ADD_OPTION () {
     PACMAN_OPTIONS+=("${@}")
 }
+
+_sudo(){
+    if "${RUN_WITH_SUDO}"; then
+        eval sudo "${@}"
+    else
+        eval "${@}"
+    fi
+}
+
+_run_detect_aur_helper(){
+    if [[ ! "${UID}" = 0 ]]; then
+        if [[ -z "${AURHELPER+SET}" ]]; then
+            for AURHELPER in "${HELPERS[@]}"; do
+                if [[ -f "${AURHELPER}" ]]; then
+                    PACMAN_COMMAND="${AURHELPER}"
+                    break
+                elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
+                    PACMAN_COMMAND="$(basename "${AURHELPER}")"
+                    break
+                fi
+            done
+        else
+            if [[ -f "${AURHELPER}" ]]; then
+                PACMAN_COMMAND="${AURHELPER}"
+            elif hash "$(basename "${AURHELPER}")" 2> /dev/null; then
+                PACMAN_COMMAND="$(basename "${AURHELPER}")"
+            else
+                _msg_error "${AURHELPER} is not installed"
+                exit 1
+            fi
+        fi
+    fi
+}
+
+_run_aur_message(){
+    if [[ ! "${PACMAN_COMMAND}" = "${DEFAULT_PACMAN_COMMAND}" ]] && [[ ! "$(basename "${PACMAN_COMMAND}")" = "$(basename "${DEFAULT_PACMAN_COMMAND}")" ]]; then
+        _msg_debug "Use AUR helper ${PACMAN_COMMAND}"
+    else
+        RUN_WITH_SUDO=true
+    fi
+}
+
+_run_autoremove(){
+    if "${autoremove}"; then
+        if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
+            "${PACMAN_COMMAND}" -Qttdq | _sudo "${PACMAN_COMMAND}" -Rsc --config "${PACMAN_CONFIG}" -
+        else
+            echo "No packages to remove"
+            exit 0
+        fi
+    fi
+}
+
+_run_pacman(){
+    _sudo "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
+}
+
 
 # Argument analysis and processing
 set +e
@@ -203,7 +239,7 @@ while true; do
             shift 2
             ;;
         -V | -D | -F | -Q | -R | -S | -T | -U)
-            direct_option=true
+            DIRECT_PACMAN=true
             ADD_OPTION "${PACAPT_ARGUMENTS[@]}"
             break
             ;;
@@ -219,7 +255,7 @@ while true; do
     esac
 done
 
-if [[ "${direct_option}" = false ]]; then
+if [[ "${DIRECT_PACMAN}" = false ]]; then
     if [[ $# -lt 1 ]]; then
         _msg_error "No command specified"
         _usage
@@ -307,9 +343,9 @@ if [[ "${direct_option}" = false ]]; then
         show | showpkg)
             for pkg in "${PACKAGE[@]}"; do
                 if pacman -Qq "${pkg}" 2> /dev/null 1>&2; then
-                    ${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}" -Qi --config "${PACMAN_CONFIG}" "${pkg}"
+                    "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" -Qi --config "${PACMAN_CONFIG}" "${pkg}"
                 else
-                    ${PACMAN_COMMAND} "${PACMAN_OPTIONS[@]}" -Si --config "${PACMAN_CONFIG}" "${pkg}"
+                    "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" -Si --config "${PACMAN_CONFIG}" "${pkg}"
                 fi
             done
             unset pkg
@@ -329,27 +365,8 @@ if [[ "${direct_option}" = false ]]; then
     esac
 fi
 
-if [[ ! "${PACMAN_COMMAND}" = "${DEFAULT_PACMAN_COMMAND}" ]] && [[ ! "$(basename "${PACMAN_COMMAND}")" = "$(basename "${DEFAULT_PACMAN_COMMAND}")" ]]; then
-    _msg_debug "Use AUR helper ${PACMAN_COMMAND}"
-else
-    RUN_WITH_SUDO=true
-fi
 
-_sudo(){
-    if "${RUN_WITH_SUDO}"; then
-        eval sudo "${@}"
-    else
-        eval "${@}"
-    fi
-}
-
-_sudo "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" --config "${PACMAN_CONFIG}" "${PACKAGE[@]}"
-
-if "${autoremove}"; then
-    if [[ -n $(${PACMAN_COMMAND} -Qttdq) ]]; then
-        "${PACMAN_COMMAND}" -Qttdq | _sudo "${PACMAN_COMMAND}" -Rsc --config "${PACMAN_CONFIG}" -
-    else
-        echo "No packages to remove"
-        exit 0
-    fi
-fi
+_run_detect_aur_helper
+_run_aur_message
+_run_pacman
+_run_autoremove
