@@ -57,6 +57,10 @@ _msg_error () {
     echo -e "${@}" >&2
 }
 
+_msg_warn () {
+    echo -e "${@}" >&2
+}
+
 _msg_debug () {
     if "${DEBUG}"; then
         echo -e "${@}" >&1
@@ -97,6 +101,7 @@ _usage () {
     echo "         --aur-helper <command>          Specifies the command to use as the AUR helper"
     echo "                                         Ignored if pacapt is run as root"
     echo "                                         Specify AUR helper that supports common command line options with pacman"
+    echo "         --pflags <flags>                Pass arguments to pacman"
     echo
     echo " Notes:"
     echo "    - aptpac supports not only above options but also options of pacman"
@@ -118,13 +123,16 @@ EOF
 }
 
 ADD_OPTION () {
+    _msg_debug "Added pacman option '${*}'"
     PACMAN_OPTIONS+=("${@}")
 }
 
 _sudo(){
     if "${RUN_WITH_SUDO}"; then
+        _msg_debug "Run sudo ${*}"
         eval sudo "${@}"
     else
+        _msg_debug "Run ${*}"
         eval "${@}"
     fi
 }
@@ -199,12 +207,16 @@ _run_pacman(){
 }
 
 _run_debtap(){
+    _msg_warn "It is not recommended to install deb package"
+    _msg_warn "The package conversion is not perfect and can lead to errors in some cases"
+
     if (( "${#DEB_PACKAGE_FILE[@]}" != 0 )) && ! hash "debtap"; then
         _msg_error "debtap was not found"
         exit 1
     fi
 
     if [[ -z "$(find "/var/cache/pkgfile" -maxdepth 1 -mindepth 1 -name "*.files" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-packages" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-files" 2> /dev/null)" ]]; then
+        _msg_debug "Updating debtap datebase"
         sudo debtap -u
     fi
 
@@ -214,11 +226,14 @@ _run_debtap(){
         for pkg in "${DEB_PACKAGE_FILE[@]}"; do
             work="${DEBTAP_WORK}/$(basename "${pkg}")/"
             file="${work}/$(basename "${pkg}")"
+            _msg_debug "Work dir: ${work}"
+            _msg_debug "Deb file:${work}"
             sudo mkdir -p "${work}"
             cd "${work}"
             sudo cp "${pkg}" "${file}"
             sudo debtap --Quiet "${file}"
             while read -r archpkg; do
+                _msg_debug "Install ${archpkg} with pacman"
                 _pacman -U "${archpkg}"
             done < <(find "${work}" -maxdepth 1 -mindepth 1 -type f -name "*.pkg.tar.*")
         done
