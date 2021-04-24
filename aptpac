@@ -318,6 +318,10 @@ if [[ "${direct_option}" = false ]]; then
         rdepends)
             ADD_OPTION "-Sii"
             ;;
+        help)
+            _usage
+            exit 0
+            ;;
         *)
             _msg_error "Invalid command '${COMMAND}'"
             _exit 1
