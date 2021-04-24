@@ -369,6 +369,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
             _exit 0
             ;;
         huawei) 
+            # shellcheck disable=SC1091
             if [[ "$(source "/etc/locale.conf" 2> /dev/null; echo -n "${LANG}")" = "ja_JP.UTF-8" ]]; then
                 echo "(ง •ᴗ•)ว ⁾⁾ﾌｧｰｳｪｲでｳｪｲｳｪｲ"
                 _exit 0
