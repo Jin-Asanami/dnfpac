@@ -229,8 +229,8 @@ _run_debtap(){
             _msg_debug "Work dir: ${work}"
             _msg_debug "Deb file:${work}"
             sudo mkdir -p "${work}"
-            cd "${work}"
             sudo cp "${pkg}" "${file}"
+            cd "${work}"
             sudo debtap --Quiet "${file}"
             while read -r archpkg; do
                 _msg_debug "Install ${archpkg} with pacman"
