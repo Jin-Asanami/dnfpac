@@ -9,8 +9,7 @@ pkgbase = aptpac-git
 	conflicts = apt
 	conflicts = apt-git
 	conflicts = aptpac
-	source = git://github.com/FascodeNet/aptpac.git
+	source = git+https://github.com/FascodeNet/aptpac.git
 	md5sums = SKIP
 
 pkgname = aptpac-git
-
