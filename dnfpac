@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 #
-#               __
-#              /\ \__
-#   __    _____\ \ ,_\ _____     __      ___
-# /'__`\ /\ '__`\ \ \//\ '__`\ /'__`\   /'___\
-#/\ \L\.\\ \ \L\ \ \ \\ \ \L\ /\ \L\.\_/\ \__/
-#\ \__/.\_\ \ ,__/\ \__\ \ ,__\ \__/.\_\ \____\
-# \/__/\/_/\ \ \/  \/__/\ \ \/ \/__/\/_/\/____/
-#           \ \_\        \ \_\
-#            \/_/         \/_/
-# a pacman wrapper with syntax based on debian's apt
-# (c) 2019-2020 Fascode Network.
+#  __               ___
+# /\ \            /'  __`
+# \ \ \           \ \ \__
+#  \_\ \   ______  \ \ ,_\ _____     __      ___
+# /'__  \ /\ '__ \`\\ \ \//\ '__`\ /'__`\   /'___\
+#/\ \L\. \\ \ \ \ \ \\ \ \\ \ \L\ /\ \L\.\_/\ \__/
+#\ \__/.\__\ \ , \ \ \\ \__\ \ ,__\ \__/.\_\ \____\
+# \/__/\/__/\/__\ \/_/ \/__/\ \ \/ \/__/\/_/\/____/
+#                             \ \_\
+#                              \/_/
+# A Pacman wrapper with syntax based on Fedora's DNF
+# Original Copyright: (c) 2019-2020 Fascode Network.
+# Copyright (c) 2022-2023 Radio New Japan Broadcasting Network.
 # License: Do What The Fuck You Want To Public License
-# maintained by Yamada Hayao
+# maintained by Hayate Nakamura
 
 # Enter the path to the AUR helper you want to use here. 
 # If it is empty, the corresponding AUR helper will be searched automatically.
@@ -21,13 +23,13 @@
 set -e
 
 
-# APTPAC Version
-APTPAC_VERSION="3.3.0"
+# DNFPac Version
+DNFPAC_VERSION="3.3.0"
 
-# Initilize List
+# Initialise List
 PACMAN_PACKAGE_FILE=()
 PACMAN_PACKAGE=()
-DEB_PACKAGE_FILE=()
+RPM_PACKAGE_FILE=()
 
 # PACMAN Config
 HELPERS=(
@@ -45,7 +47,7 @@ DEFAULT_PACMAN_COMMAND="/usr/bin/pacman"
 PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 PACMAN_CONFIG="/etc/pacman.conf"
 
-# APTPAC Config
+# DNFPac Config
 DEBTAP_WORK="/tmp/aptpac-debtap"
 DEBUG=false
 RUN_WITH_SUDO=false
@@ -74,19 +76,17 @@ INSTALLED_PKGLIST=false
 _usage () {
     echo "usage ${0} [options] [command] [packages]"
     echo
-    echo " apt commands:"
+    echo " dnf commands:"
     echo "    install                              Install the specified package"
     echo "    remove                               Remove the specified package"
-    echo "    purge                                Permanently remove the package"
+    echo "    erase                                Permanently remove the package"
     echo "    update                               Update package database"
-    echo "    upgrade | full-upgrade               Update packages"
-    echo "    edit-sources                         Edit config file of pacman"
     echo "    search                               Search for a package"
     echo "    autoremove                           Remove unnecessary packages"
     echo "    clean                                Remove the package cache"
     echo "    list                                 Display a list of packages"
-    echo "    show | showpkg                       Display the package records"
-    echo "    rdepends                             Display the dependencies"
+    echo "    info                                 Display the package records"
+    echo "    repoquery                             Display the dependencies"
     echo
     echo " apt options:"
     echo "    -y | --yes  | --assume-yes           Do not check"
