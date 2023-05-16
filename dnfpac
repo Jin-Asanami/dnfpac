@@ -350,7 +350,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
 
     case "${COMMAND}" in
         install)
-            ADD_OPTION "-S"
+            #ADD_OPTION "-S"
             INSTALL=true
             ;;
         remove)
