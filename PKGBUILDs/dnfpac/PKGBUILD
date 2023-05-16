@@ -11,7 +11,7 @@ url="https://github.com/njb-fm/dnfpac"
 license=('WTFPL')
 conflicts=('dnf' 'yum')
 
-source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/${pkgver}.tar.gz")
 md5sums=('SKIP')
 
 package() {
