@@ -429,7 +429,7 @@ _run_detect_aur_helper
 _run_aur_message
 _run_distinguish_package
 _run_pacman
-if [[ "${INSTALL}" = true ]]; then
-    _run_debtap  
-fi
+#if [[ "${INSTALL}" = true ]]; then
+#    _run_debtap  
+#fi
 _run_autoremove
