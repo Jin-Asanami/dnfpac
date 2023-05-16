@@ -12,7 +12,7 @@ license=('WTFPL')
 conflicts=('dnf' 'yum' 'dnfpac')
 makedepends=('git')
 
-source=('dnfpac::git+${url}.git')
+source=("git+${url}.git")
 md5sums=('SKIP')
 
 pkgver() {
@@ -21,9 +21,9 @@ pkgver() {
 }
 
 package() {
-    cd "${_gitname}-${pkgver}"
+    cd "${_gitname}"
     install -m 755 -D dnfpac "${pkgdir}/usr/bin/dnfpac"
-    install -m 755 -D LICENSE "${pkgdir}/usr/share/licenses/aptpac/LICENSE"
+    install -m 755 -D LICENSE "${pkgdir}/usr/share/licenses/dnfpac/LICENSE"
     cd "${pkgdir}/usr/bin/"
     ln -s "dnfpac" "dnf"
     ln -s "dnfpac" "yum"
