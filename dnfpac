@@ -50,7 +50,7 @@ PACMAN_CONFIG="/etc/pacman.conf"
 # DNFPac Config
 #DEBTAP_WORK="/tmp/aptpac-debtap"
 DEBUG=false
-RUN_WITH_SUDO=true
+RUN_WITH_SUDO=false
 DIRECT_PACMAN=false
 AUTOREMOVE=false
 INSTALL=false
