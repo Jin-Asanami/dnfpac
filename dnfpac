@@ -24,7 +24,7 @@ set -e
 
 
 # DNFPac Version
-DNFPAC_VERSION="3.3.0"
+DNFPAC_VERSION="0.1.0"
 
 # Initialise List
 PACMAN_PACKAGE_FILE=()
@@ -48,7 +48,7 @@ PACMAN_COMMAND="${DEFAULT_PACMAN_COMMAND}"
 PACMAN_CONFIG="/etc/pacman.conf"
 
 # DNFPac Config
-DEBTAP_WORK="/tmp/aptpac-debtap"
+#DEBTAP_WORK="/tmp/aptpac-debtap"
 DEBUG=false
 RUN_WITH_SUDO=false
 DIRECT_PACMAN=false
@@ -81,31 +81,32 @@ _usage () {
     echo "    remove                               Remove the specified package"
     echo "    erase                                Permanently remove the package"
     echo "    update                               Update package database"
+    echo "    upgrade                              Update packages"
     echo "    search                               Search for a package"
     echo "    autoremove                           Remove unnecessary packages"
     echo "    clean                                Remove the package cache"
     echo "    list                                 Display a list of packages"
     echo "    info                                 Display the package records"
-    echo "    repoquery                             Display the dependencies"
+    echo "    repoquery                            Display the dependencies"
     echo
-    echo " apt options:"
-    echo "    -y | --yes  | --assume-yes           Do not check"
-    echo "    -d | --download-only                 Only download the package"
+    echo " dnf options:"
+    echo "    -y | --yes  | --assumeyes            Do not check"
+    echo "    --downloadonly                       Only download the package"
     echo "    -c | --config-file <file>            Config file for pacman"
     echo "    -h | --help                          Display this help"
-    echo "    -v | --version                       Display the version of aptpac and pacman"
-    echo "         --auto-remove | --autoremove    Remove unnecessary packages with other command"
-    echo "         --purge                         Delete the entire configuration file"
+    echo "    -v | --version                       Display the version of dnfpac and pacman"
+    echo "         --autoremove                    Remove unnecessary packages with other command"
+    echo "         --erase                         Delete the entire configuration file"
     echo
-    echo " pacapt options:"
+    echo " pacdnf options:"
     echo "         --aur-helper <command>          Specifies the command to use as the AUR helper"
-    echo "                                         Ignored if pacapt is run as root"
+    echo "                                         Ignored if pacdnf is run as root"
     echo "                                         Specify AUR helper that supports common command line options with pacman"
     echo "         --pflags <flags>                Pass arguments to pacman"
     echo
-    echo " Notes:"
-    echo "    - aptpac supports not only above options but also options of pacman"
-    echo "    - If you specify the deb file, you can install using debtap"
+#    echo " Notes:"
+#    echo "    - dnfpac supports not only above options but also options of pacman"
+#    echo "    - If you specify the deb file, you can install using debtap"
 }
 
 _exit () {
@@ -114,9 +115,10 @@ _exit () {
 
 _version () {
 cat << EOF
-aptpac ${APTPAC_VERSION} - A pacman wrapper with syntax based on debian's apt
+DNFPac ${DNFPAC_VERSION} - A pacman wrapper with syntax based on fedora's dnf
 License: Do What The Fuck You Want To Public License
 (c) 2019-2020 Fascode Network. Yamada Hayao
+(c) 2022-2023 Radio New Japan Broadcasting Club. Nakamura Hayate
 EOF
     echo
     pacman --version
@@ -206,44 +208,44 @@ _run_pacman(){
     fi
 }
 
-_run_debtap(){
-    _msg_warn "It is not recommended to install deb package"
-    _msg_warn "The package conversion is not perfect and can lead to errors in some cases"
-
-    if (( "${#DEB_PACKAGE_FILE[@]}" != 0 )) && ! hash "debtap"; then
-        _msg_error "debtap was not found"
-        exit 1
-    fi
-
-    if [[ -z "$(find "/var/cache/pkgfile" -maxdepth 1 -mindepth 1 -name "*.files" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-packages" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-files" 2> /dev/null)" ]]; then
-        _msg_debug "Updating debtap datebase"
-        sudo debtap -u
-    fi
-
-    (
-        sudo mkdir -p "${DEBTAP_WORK}"
-        local pkg work
-        for pkg in "${DEB_PACKAGE_FILE[@]}"; do
-            work="${DEBTAP_WORK}/$(basename "${pkg}")/"
-            file="${work}/$(basename "${pkg}")"
-            _msg_debug "Work dir: ${work}"
-            _msg_debug "Deb file:${work}"
-            sudo mkdir -p "${work}"
-            sudo cp "${pkg}" "${file}"
-            cd "${work}"
-            sudo debtap --Quiet "${file}"
-            while read -r archpkg; do
-                _msg_debug "Install ${archpkg} with pacman"
-                _pacman -U "${archpkg}"
-            done < <(find "${work}" -maxdepth 1 -mindepth 1 -type f -name "*.pkg.tar.*")
-        done
-    )
-}
+#_run_debtap(){
+#    _msg_warn "It is not recommended to install deb package"
+#    _msg_warn "The package conversion is not perfect and can lead to errors in some cases"
+#
+#    if (( "${#DEB_PACKAGE_FILE[@]}" != 0 )) && ! hash "debtap"; then
+#        _msg_error "debtap was not found"
+#        exit 1
+#    fi
+#
+#    if [[ -z "$(find "/var/cache/pkgfile" -maxdepth 1 -mindepth 1 -name "*.files" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-packages" 2> /dev/null)" ]] || [[ -z "$(find "/var/cache/debtap" -maxdepth 1 -mindepth 1 -name "*-files" 2> /dev/null)" ]]; then
+#        _msg_debug "Updating debtap datebase"
+#        sudo debtap -u
+#    fi
+#
+#    (
+#        sudo mkdir -p "${DEBTAP_WORK}"
+#        local pkg work
+#        for pkg in "${DEB_PACKAGE_FILE[@]}"; do
+#            work="${DEBTAP_WORK}/$(basename "${pkg}")/"
+#            file="${work}/$(basename "${pkg}")"
+#            _msg_debug "Work dir: ${work}"
+#            _msg_debug "Deb file:${work}"
+#            sudo mkdir -p "${work}"
+#            sudo cp "${pkg}" "${file}"
+#            cd "${work}"
+#            sudo debtap --Quiet "${file}"
+#            while read -r archpkg; do
+#                _msg_debug "Install ${archpkg} with pacman"
+#                _pacman -U "${archpkg}"
+#            done < <(find "${work}" -maxdepth 1 -mindepth 1 -type f -name "*.pkg.tar.*")
+#        done
+#    )
+#}
 
 
 # Argument analysis and processing
 set +e
-PACAPT_ARGUMENTS=("${@}")
+PACDNF_ARGUMENTS=("${@}")
 _opt_short="ydfc:hvVDFQRSTU"
 _opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove,aur-helper:,pflags:"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}" 2> /dev/null)
@@ -258,11 +260,11 @@ unset OPT _opt_short _opt_long
 
 while true; do
     case "${1}" in
-        -y | --yes | --assume-yes)
+        -y | --yes | --assumeyes)
             ADD_OPTION "--noconfirm"
             shift 1
             ;;
-        -d | --download-only)
+        -d | --downloadonly)
             ADD_OPTION "-w"
             shift 1
             ;;
@@ -295,7 +297,7 @@ while true; do
             shift 1
             exit 0
             ;;
-        --autoremove | --auto-remove)
+        --autoremove)
             AUTOREMOVE=true
             shift 1
             ;;
@@ -303,7 +305,7 @@ while true; do
             if [[ ! "${UID}" = 0 ]] && [[ -f "${2}" ]]; then
                 PACMAN_COMMAND="${2}"
             elif [[ "${UID}" = 0 ]]; then
-                _msg_warn "The specified AUR helper is not used because pacapt is running on the root."
+                _msg_warn "The specified AUR helper is not used because pacdnf is running on the root."
             elif hash "$(basename "${2}")" 2> /dev/null; then
                 PACMAN_COMMAND="$(basename "${2}")"
             else
@@ -319,7 +321,7 @@ while true; do
             ;;
         -V | -D | -F | -Q | -R | -S | -T | -U)
             DIRECT_PACMAN=true
-            ADD_OPTION "${PACAPT_ARGUMENTS[@]}"
+            ADD_OPTION "${PACDNF_ARGUMENTS[@]}"
             break
             ;;
         --)
@@ -348,14 +350,14 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
 
     case "${COMMAND}" in
         install)
-            #ADD_OPTION "-S"
+            ADD_OPTION "-S"
             INSTALL=true
             ;;
         remove)
             ADD_OPTION "-Rsc"
             ;;
-        purge)
-            ADD_OPTION "-Rsnc"
+        erase)
+            ADD_OPTION "-Rnsc"
             ;;
         update)
             ADD_OPTION "-Syy"
@@ -366,22 +368,8 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
         search)
             ADD_OPTION "-Ss"
             ;;
-        full-upgrade)
-            ADD_OPTION "-Syu"
-            ;;
         clean)
             ADD_OPTION "-Sccc"
-            ;;
-        dist-upgrade)
-            ADD_OPTION "-Syu"
-            ;;
-        edit-sources)
-            if [[ -n "${EDITOR}" ]]; then
-                sudo "${EDITOR}" "${PACMAN_CONFIG}"
-            else
-                sudo nano "${PACMAN_CONFIG}"
-            fi
-            _exit 0
             ;;
         huawei) 
             # shellcheck disable=SC1091
@@ -392,16 +380,6 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
                 _msg_error "Invalid command '${COMMAND}'"
                 _exit 1
             fi
-            ;;
-        moo)
-            echo "         (__) "
-            echo "         (oo) "
-            echo "   /------\/ "
-            echo "  / |    ||   "
-            echo " *  /\---/\ "
-            echo "    ~~   ~~   "
-            echo "....\"Have you mooed today?\"..."
-            exit 0
             ;;
         autoremove) 
             if [[ -n "$(${PACMAN_COMMAND} -Qttdq)" ]]; then
@@ -421,7 +399,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
                 ADD_OPTION "-Ss"
             fi
             ;;
-        show | showpkg)
+        info)
             for pkg in "${PACKAGE[@]}"; do
                 if pacman -Qq "${pkg}" 2> /dev/null 1>&2; then
                     "${PACMAN_COMMAND}" "${PACMAN_OPTIONS[@]}" -Qi --config "${PACMAN_CONFIG}" "${pkg}"
@@ -432,7 +410,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
             unset pkg
             _exit 0
             ;;
-        rdepends)
+        repoquery)
             ADD_OPTION "-Sii"
             ;;
         help)
