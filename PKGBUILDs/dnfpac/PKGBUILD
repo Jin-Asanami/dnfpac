@@ -11,13 +11,13 @@ url="https://github.com/njb-fm/dnfpac"
 license=('WTFPL')
 conflicts=('dnf' 'yum')
 
-source=("${url}/archive/v${pkgver}.zip")
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
 md5sums=('SKIP')
 
 package() {
     cd "${_gitname}-${pkgver}"
     install -m 755 -D dnfpac "${pkgdir}/usr/bin/dnfpac"
-    install -m 755 -D LICENSE "${pkgdir}/usr/share/licenses/aptpac/LICENSE"
+    install -m 755 -D LICENSE "${pkgdir}/usr/share/licenses/dnfpac/LICENSE"
     cd "${pkgdir}/usr/bin/"
     ln -s "dnfpac" "dnf"
     ln -s "dnfpac" "yum"
