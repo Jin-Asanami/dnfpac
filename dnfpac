@@ -117,7 +117,6 @@ _version () {
 cat << EOF
 DNFPac ${DNFPAC_VERSION} - A pacman wrapper with syntax based on fedora's dnf
 License: Do What The Fuck You Want To Public License
-(c) 2019-2020 Fascode Network. Yamada Hayao
 (c) 2022-2023 Radio New Japan Broadcasting Club. Nakamura Hayate
 EOF
     echo
@@ -247,7 +246,7 @@ _run_pacman(){
 set +e
 PACDNF_ARGUMENTS=("${@}")
 _opt_short="ydfc:hvVDFQRSTU"
-_opt_long="yes,assume-yes,download-only,fix-broken,purse,installed,debug,help,version,config-file:,auto-remove,autoremove,aur-helper:,pflags:"
+_opt_long="yes,assume-yes,download-only,fix-broken,erase,installed,debug,help,version,config-file:,auto-remove,autoremove,aur-helper:,pflags:,all"
 OPT=$(getopt -o ${_opt_short} -l ${_opt_long} -- "${@}" 2> /dev/null)
 set -e
 #if [[ ${?} != 0 ]]; then
@@ -275,7 +274,11 @@ while true; do
             PACMAN_CONFIG="${2}"
             shift 2
             ;;
-        --purge)
+        all)
+            ALLCLEAN=true
+            shift 1
+            ;;
+        --erase)
             ADD_OPTION "-n"
             shift 1
             ;;
@@ -369,7 +372,11 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
             ADD_OPTION "-Ss"
             ;;
         clean)
-            ADD_OPTION "-Sccc"
+            if [[ ${1} = all ]]; then
+                ADD_OPTION "-Scc"
+            else
+                ADD_OPTION "-Sc"
+            fi
             ;;
         huawei) 
             # shellcheck disable=SC1091
@@ -382,7 +389,7 @@ if [[ "${DIRECT_PACMAN}" = false ]]; then
             fi
             ;;
         autoremove) 
-            if [[ -n "$(${PACMAN_COMMAND} -Qttdq)" ]]; then
+            if [[ -n "$(${PACMAN_COMMAND} -Qtdq)" ]]; then
                 ADD_OPTION "-Rsc"
                 while read -r pkg; do
                     PACKAGE+=("${pkg}")
